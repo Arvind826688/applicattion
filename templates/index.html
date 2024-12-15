@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dating App</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <h1>Welcome to the Dating App</h1>
+    <div id="profiles"></div>
+    <script>
+        fetch('/api/get_profiles')
+            .then(response => response.json())
+            .then(data => {
+                const profilesDiv = document.getElementById('profiles');
+                data.slice(0, 4).forEach(profile => {
+                    const profileCard = document.createElement('div');
+                    profileCard.innerHTML = `
+                        <h3>${profile.name}, ${profile.age}</h3>
+                        <button onclick="likeProfile(${profile.id})">Like</button>
+                    `;
+                    profilesDiv.appendChild(profileCard);
+                });
+            });
+
+        function likeProfile(id) {
+            fetch('/api/get_similar_profiles', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ liked_profile_id: id })
+            })
+            .then(response => response.json())
+            .then(data => {
+                window.location.href = '/similar';
+                localStorage.setItem('similarProfiles', JSON.stringify(data));
+            });
+        }
+    </script>
+</body>
+</html>
